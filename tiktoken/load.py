@@ -14,7 +14,7 @@ def read_file(blobpath: str) -> bytes:
         # avoiding blobfile for public files helps avoid auth issues, like MFA prompts.
         import requests
 
-        resp = requests.get(blobpath)
+        resp = requests.get(blobpath, timeout=30)
         resp.raise_for_status()
         return resp.content
 
