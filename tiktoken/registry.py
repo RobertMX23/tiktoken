@@ -88,6 +88,18 @@ def get_encoding(encoding_name: str) -> Encoding:
         return enc
 
 
+def clear_encoding_cache() -> None:
+    """Release the cache's references to all loaded encodings.
+
+    Existing Encoding objects remain usable. An encoding can be freed once no
+    other references to it remain; this does not guarantee that process memory
+    usage immediately decreases. Subsequent lookups construct and cache new
+    encodings. Registered constructors and downloaded vocabulary files are kept.
+    """
+    with _lock:
+        ENCODINGS.clear()
+
+
 def list_encoding_names() -> list[str]:
     with _lock:
         if ENCODING_CONSTRUCTORS is None:
