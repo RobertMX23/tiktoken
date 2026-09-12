@@ -61,6 +61,11 @@ def _find_constructors() -> None:
 
 
 def get_encoding(encoding_name: str) -> Encoding:
+    """Returns a cached Encoding for the given encoding name.
+
+    Encodings are cached for the lifetime of the process. Repeated calls with the
+    same name return the same object; deleting a caller's reference does not unload it.
+    """
     if not isinstance(encoding_name, str):
         raise ValueError(f"Expected a string in get_encoding, got {type(encoding_name)}")
 

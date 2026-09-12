@@ -32,6 +32,10 @@ Example code using `tiktoken` can be found in the
 Performance measured on 1GB of text using the GPT-2 tokeniser, using `GPT2TokenizerFast` from
 `tokenizers==0.13.2`, `transformers==4.24.0` and `tiktoken==0.2.0`.
 
+Encodings loaded by `get_encoding` or `encoding_for_model` are cached in memory and reused.
+Deleting your reference does not unload them. See [encoding memory usage](docs/memory.md) for
+details and an example of limiting their lifetime to a worker process.
+
 
 ## Getting help
 
@@ -128,4 +132,3 @@ setup(
 
 Then simply `pip install ./my_tiktoken_extension` and you should be able to use your
 custom encodings! Make sure **not** to use an editable install.
-
