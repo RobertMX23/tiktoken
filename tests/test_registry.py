@@ -132,3 +132,38 @@ def test_clear_encoding_cache_during_construction(encoding_registry, monkeypatch
     replacement = tiktoken.get_encoding("test_encoding")
     assert replacement is not original
     assert original.encode("hello") == replacement.encode("hello")
+
+
+def test_clear_encoding_cache_during_cached_lookup(encoding_registry, monkeypatch):
+    original = tiktoken.get_encoding("test_encoding")
+    looked_up = Event()
+    resume_lookup = Event()
+
+    class PausingCache(dict):
+        def __contains__(self, key):
+            found = super().__contains__(key)
+            looked_up.set()
+            assert resume_lookup.wait(timeout=5)
+            return found
+
+        def get(self, key, default=None):
+            value = super().get(key, default)
+            looked_up.set()
+            assert resume_lookup.wait(timeout=5)
+            return value
+
+    monkeypatch.setattr(registry, "ENCODINGS", PausingCache(registry.ENCODINGS))
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        lookup = pool.submit(tiktoken.get_encoding, "test_encoding")
+        try:
+            # Clear after the reader's first dictionary operation, before it returns.
+            assert looked_up.wait(timeout=5)
+            tiktoken.clear_encoding_cache()
+        finally:
+            resume_lookup.set()
+        retained = lookup.result(timeout=5)
+
+    assert retained is original
+    replacement = tiktoken.get_encoding("test_encoding")
+    assert replacement is not original
+    assert retained.encode("hello") == replacement.encode("hello")

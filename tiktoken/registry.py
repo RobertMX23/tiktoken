@@ -64,8 +64,9 @@ def get_encoding(encoding_name: str) -> Encoding:
     if not isinstance(encoding_name, str):
         raise ValueError(f"Expected a string in get_encoding, got {type(encoding_name)}")
 
-    if encoding_name in ENCODINGS:
-        return ENCODINGS[encoding_name]
+    # Keep a reference from one lookup; the cache may be cleared concurrently.
+    if (enc := ENCODINGS.get(encoding_name)) is not None:
+        return enc
 
     with _lock:
         if encoding_name in ENCODINGS:
