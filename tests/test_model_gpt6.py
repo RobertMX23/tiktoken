@@ -56,7 +56,7 @@ def test_unknown_future_family_is_still_rejected() -> None:
         encoding_name_for_model("gpt-7-astra")
 
 
-def test_real_gpt6_encoder_roundtrip_is_identical_to_gpt5() -> None:
+def test_gpt6_lookup_uses_the_existing_local_encoder() -> None:
     new = tiktoken.encoding_for_model("gpt-6-astra")
     old = tiktoken.encoding_for_model("gpt-5")
     assert new is old
